@@ -282,8 +282,47 @@
     #scr-result {
       background: linear-gradient(155deg, #FFF0DC 0%, #FFD6A5 100%);
       align-items: center;
-      padding: 32px 24px 28px;
-      gap: 18px;
+      padding: 28px 20px 52px;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    /* 品種平均統計卡 */
+    .breed-stats-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 3px 20px var(--shadow);
+      width: 100%;
+      max-width: 300px;
+    }
+    .breed-stats-title {
+      font-size: 15px; font-weight: 700; color: var(--dark);
+      text-align: center; margin-bottom: 3px;
+    }
+    .breed-stats-sub {
+      font-size: 12px; color: var(--brown);
+      text-align: center; margin-bottom: 14px; opacity: .8;
+    }
+    .stat-row { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+    .stat-label { font-size: 12px; font-weight: 600; color: var(--dark); min-width: 58px; }
+    .stat-bar-wrap { flex: 1; height: 13px; background: var(--light); border-radius: 7px; overflow: hidden; }
+    .stat-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--orange), var(--yellow));
+      border-radius: 7px;
+      width: 0;
+      transition: width 0.9s cubic-bezier(.4,.0,.2,1);
+    }
+    .stat-val { font-size: 12px; font-weight: 700; color: var(--brown); min-width: 22px; text-align: right; }
+    .breed-top-mbti {
+      margin-top: 12px; padding: 10px 14px;
+      background: var(--cream); border-radius: 12px;
+      font-size: 13px; color: var(--brown); text-align: center; line-height: 1.5;
+    }
+    .breed-stats-loading {
+      text-align: center; padding: 20px 0;
+      font-size: 13px; color: var(--brown);
     }
 
     .result-top { text-align: center; }
@@ -414,19 +453,17 @@
 
     .rank-tabs {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
-      padding: 16px 20px 0;
-      overflow-x: auto;
-      scrollbar-width: none;
+      padding: 14px 20px 0;
     }
-    .rank-tabs::-webkit-scrollbar { display: none; }
 
     .rank-tab {
       background: var(--white);
       border: 2px solid var(--light);
       border-radius: 50px;
-      padding: 8px 18px;
-      font-size: 13px;
+      padding: 7px 14px;
+      font-size: 12.5px;
       font-weight: 600;
       color: var(--brown);
       cursor: pointer;
@@ -442,6 +479,40 @@
     }
 
     .rank-content { padding: 16px 20px; }
+
+    /* 品種個性 accordion */
+    .breed-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .breed-acc-item {
+      border: 2px solid var(--light);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: border-color .2s;
+      background: var(--cream);
+    }
+    .breed-acc-item.open { border-color: var(--orange); background: #FFF8F2; }
+
+    .breed-acc-header {
+      display: flex;
+      align-items: center;
+      padding: 11px 14px;
+      cursor: pointer;
+      gap: 9px;
+      user-select: none;
+    }
+    .breed-acc-emoji { font-size: 22px; }
+    .breed-acc-name  { font-size: 14px; font-weight: 700; color: var(--dark); flex: 1; }
+    .breed-acc-count { font-size: 12px; color: var(--brown); background: var(--light); padding: 2px 8px; border-radius: 20px; }
+    .breed-acc-arrow { font-size: 10px; color: var(--orange); transition: transform .25s; }
+    .breed-acc-item.open .breed-acc-arrow { transform: rotate(180deg); }
+
+    .breed-acc-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .35s ease;
+    }
+    .breed-acc-item.open .breed-acc-body { max-height: 380px; }
+    .breed-acc-inner { padding: 0 14px 14px; border-top: 1px solid var(--light); padding-top: 12px; }
 
     .rank-section { display: none; }
     .rank-section.active { display: block; }
@@ -658,6 +729,8 @@
       <button class="btn-outline" onclick="resetSurvey()">再填一次</button>
       <button class="btn-ranking" onclick="showRankings()">看排行榜 📊</button>
     </div>
+
+    <div id="breed-stats"></div>
   </div>
 
   <!-- RANKINGS -->
@@ -673,7 +746,7 @@
       <button class="rank-tab" onclick="switchTab(this,'tab-vocal')">🔊 話嘮</button>
       <button class="rank-tab" onclick="switchTab(this,'tab-social')">👥 社交力</button>
       <button class="rank-tab" onclick="switchTab(this,'tab-cling')">💔 分離焦慮</button>
-      <button class="rank-tab" onclick="switchTab(this,'tab-mbti')">🧠 MBTI</button>
+      <button class="rank-tab" onclick="switchTab(this,'tab-mbti')">🐾 品種個性</button>
     </div>
 
     <div class="rank-content">
@@ -1183,6 +1256,7 @@ async function submitSurvey() {
   setTimeout(() => {
     buildResult();
     showScreen('scr-result');
+    buildBreedStats();
   }, 1800);
 }
 
@@ -1346,6 +1420,89 @@ function showResult() {
   showScreen('scr-result');
 }
 
+// ==================== BREED STATS ====================
+
+async function buildBreedStats() {
+  const container = document.getElementById('breed-stats');
+  const breed     = state.breedData;
+  const breedId   = state.answers.breed;
+  if (!breed || !breedId) return;
+
+  container.innerHTML = `<div class="breed-stats-card"><div class="breed-stats-loading">🐾 載入同品種資料中...</div></div>`;
+
+  let allSubs = [];
+  try { allSubs = await loadSubmissions(); } catch(e) {}
+
+  const breedSubs = allSubs.filter(s => s.breed === breedId);
+  const n = breedSubs.length;
+
+  if (n === 0) {
+    container.innerHTML = `
+      <div class="breed-stats-card">
+        <div class="breed-stats-title">${breed.emoji} ${breed.name} 的平均個性</div>
+        <div class="breed-stats-sub">你是第一位 ${breed.name} 主人填答！<br>邀請更多同好，就能看到品種平均 🐾</div>
+      </div>`;
+    return;
+  }
+
+  const exMap       = { none:1, pee:2, walk:3, run:4 };
+  const foodMap     = { picky:1, normal:2, hungry:3, vacuum:4 };
+  const vocalMap    = { silent:1, rarely:2, moderate:3, loud:4 };
+  const strangerMap = { hide:1, ignore:2, wag:3, jump:4 };
+  const sleepMap    = { always_sleep:1, routine:2, pushy:3, always_awake:4 };
+  const sepMap      = { ok:1, bark_lil:2, dramatic:3 };
+
+  const avg = (arr) => (arr.reduce((a,b)=>a+b,0) / arr.length);
+
+  const stats = [
+    { emoji:'🏃', label:'運動量', val: avg(breedSubs.map(s=>exMap[s.exercise]||2)),       max:4 },
+    { emoji:'🍖', label:'食量',   val: avg(breedSubs.map(s=>foodMap[s.food]||2)),         max:4 },
+    { emoji:'🔊', label:'話嘮',   val: avg(breedSubs.map(s=>vocalMap[s.vocal]||2)),       max:4 },
+    { emoji:'👥', label:'社交力', val: avg(breedSubs.map(s=>strangerMap[s.stranger]||2)), max:4 },
+    { emoji:'😴', label:'愛睡覺', val: avg(breedSubs.map(s=>sleepMap[s.sleep]||2)),       max:4 },
+    { emoji:'💔', label:'分離焦慮',val: avg(breedSubs.map(s=>sepMap[s.separation]||2)),   max:3 },
+  ];
+
+  // MBTI top type
+  const mbtiCounts = {};
+  breedSubs.forEach(s => { if(s.mbti) mbtiCounts[s.mbti] = (mbtiCounts[s.mbti]||0)+1; });
+  const topEntry = Object.entries(mbtiCounts).sort((a,b)=>b[1]-a[1])[0];
+  const topType  = topEntry ? MBTI_TYPES[topEntry[0]] : null;
+  const topPct   = topEntry ? Math.round(topEntry[1]/n*100) : 0;
+
+  const barHTML = stats.map(s => {
+    const pct = Math.round(s.val / s.max * 100);
+    return `
+      <div class="stat-row">
+        <div class="stat-label">${s.emoji} ${s.label}</div>
+        <div class="stat-bar-wrap"><div class="stat-bar" data-pct="${pct}"></div></div>
+        <div class="stat-val">${s.val.toFixed(1)}</div>
+      </div>`;
+  }).join('');
+
+  const mbtiHTML = topType ? `
+    <div class="breed-top-mbti">
+      最常見性格<br>
+      <strong style="color:var(--orange);font-size:15px;">${topEntry[0]} ${topType.name}</strong>
+      <span style="font-size:11px;"> (${topPct}%)</span>
+    </div>` : '';
+
+  container.innerHTML = `
+    <div class="breed-stats-card">
+      <div class="breed-stats-title">${breed.emoji} ${breed.name} 的平均個性</div>
+      <div class="breed-stats-sub">共 ${n} 份填答資料</div>
+      ${barHTML}
+      ${mbtiHTML}
+    </div>`;
+
+  // 觸發 bar 動畫（設 width 後 transition 才會生效）
+  requestAnimationFrame(() => {
+    container.querySelectorAll('.stat-bar').forEach(bar => {
+      bar.style.width = bar.dataset.pct + '%';
+    });
+  });
+}
+
 function resetSurvey() {
   startSurvey();
 }
@@ -1412,7 +1569,7 @@ async function buildRankings() {
   buildRankTab('tab-vocal',    entries, 'vocal',    '🔊 最話嘮排行',   `叫聲指數（1-4 分）．共 ${total} 份問卷`, 4);
   buildRankTab('tab-social',   entries, 'social',   '👥 最社交排行',   `陌生人熱情指數（1-4 分）．共 ${total} 份問卷`, 4);
   buildRankTab('tab-cling',    entries, 'cling',    '💔 分離焦慮排行', `分離焦慮指數（1-3 分）．共 ${total} 份問卷`, 3);
-  buildMBTIDist(submissions);
+  buildBreedList(submissions);
 }
 
 function buildRankTab(tabId, entries, field, title, subtitle, maxScore) {
@@ -1458,54 +1615,113 @@ function buildRankTab(tabId, entries, field, title, subtitle, maxScore) {
   `;
 }
 
-function buildMBTIDist(submissions) {
-  const counts = {};
-  submissions.forEach(s => { if(s.mbti) counts[s.mbti] = (counts[s.mbti]||0) + 1; });
+function buildBreedList(submissions) {
+  const exMap       = { none:1, pee:2, walk:3, run:4 };
+  const foodMap     = { picky:1, normal:2, hungry:3, vacuum:4 };
+  const vocalMap    = { silent:1, rarely:2, moderate:3, loud:4 };
+  const strangerMap = { hide:1, ignore:2, wag:3, jump:4 };
+  const sleepMap    = { always_sleep:1, pushy:2, routine:3, always_awake:4 };
+  const sepMap      = { ok:1, bark_lil:2, dramatic:3 };
+  const avg         = arr => arr.reduce((a,b)=>a+b,0) / arr.length;
 
-  const total = Object.values(counts).reduce((a,b)=>a+b, 0);
+  // 彙整各品種
+  const breedMap = {};
+  submissions.forEach(s => {
+    const id = s.breed;
+    if (!id || id === 'unknown') return;
+    if (!breedMap[id]) {
+      let name = s.breedName, emoji = s.breedEmoji || '🐾';
+      if (!name) {
+        for (const sz of ['small','medium','large']) {
+          const f = BREEDS[sz].find(b => b.id === id);
+          if (f) { name = f.name; emoji = f.emoji; break; }
+        }
+      }
+      breedMap[id] = { name, emoji, subs: [] };
+    }
+    breedMap[id].subs.push(s);
+  });
 
-  if (total === 0) {
+  const breeds = Object.entries(breedMap)
+    .filter(([,d]) => d.name)
+    .sort((a,b) => b[1].subs.length - a[1].subs.length);
+
+  if (breeds.length === 0) {
     document.getElementById('tab-mbti').innerHTML = `
       <div class="rank-card">
-        <div class="rank-card-title">🧠 MBTI 類型分佈</div>
+        <div class="rank-card-title">🐾 各品種個性總覽</div>
         <div style="text-align:center;padding:32px 16px;">
-          <div style="font-size:48px;margin-bottom:12px;">🧠</div>
+          <div style="font-size:48px;margin-bottom:12px;">🐾</div>
           <div style="font-size:15px;font-weight:700;color:var(--dark);margin-bottom:6px;">還沒有資料</div>
-          <div style="font-size:13px;color:var(--brown);line-height:1.7;">邀請更多毛孩主人填問卷，<br>MBTI 分佈就會出現啦！</div>
+          <div style="font-size:13px;color:var(--brown);line-height:1.7;">邀請毛孩主人填問卷，<br>品種個性就會出現啦！</div>
         </div>
-      </div>
-    `;
+      </div>`;
     return;
   }
 
-  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-  const maxCount = sorted[0][1];
+  const accItems = breeds.map(([id, d]) => {
+    const subs = d.subs;
+    const n    = subs.length;
 
-  const items = sorted.map(([type, cnt]) => {
-    const pct = Math.round(cnt / total * 100);
-    const barW = Math.round(cnt / maxCount * 100);
-    const t = MBTI_TYPES[type];
+    const stats = [
+      { emoji:'🏃', label:'運動量',   val: avg(subs.map(s=>exMap[s.exercise]||2)),       max:4 },
+      { emoji:'🍖', label:'食量',     val: avg(subs.map(s=>foodMap[s.food]||2)),         max:4 },
+      { emoji:'🔊', label:'話嘮',     val: avg(subs.map(s=>vocalMap[s.vocal]||2)),       max:4 },
+      { emoji:'👥', label:'社交力',   val: avg(subs.map(s=>strangerMap[s.stranger]||2)), max:4 },
+      { emoji:'😴', label:'愛睡覺',   val: avg(subs.map(s=>sleepMap[s.sleep]||2)),       max:4 },
+      { emoji:'💔', label:'分離焦慮', val: avg(subs.map(s=>sepMap[s.separation]||2)),    max:3 },
+    ];
+
+    const mbtiCounts = {};
+    subs.forEach(s => { if(s.mbti) mbtiCounts[s.mbti] = (mbtiCounts[s.mbti]||0)+1; });
+    const topEntry = Object.entries(mbtiCounts).sort((a,b)=>b[1]-a[1])[0];
+    const topType  = topEntry ? MBTI_TYPES[topEntry[0]] : null;
+    const topPct   = topEntry ? Math.round(topEntry[1]/n*100) : 0;
+
+    const statsHTML = stats.map(s => {
+      const pct = Math.round(s.val / s.max * 100);
+      return `
+        <div class="stat-row">
+          <div class="stat-label">${s.emoji} ${s.label}</div>
+          <div class="stat-bar-wrap"><div class="stat-bar" style="width:${pct}%"></div></div>
+          <div class="stat-val">${s.val.toFixed(1)}</div>
+        </div>`;
+    }).join('');
+
+    const mbtiHTML = topType ? `
+      <div class="breed-top-mbti" style="margin-top:10px;">
+        最常見性格：<strong style="color:var(--orange)">${topEntry[0]} ${topType.name}</strong>（${topPct}%）
+      </div>` : '';
+
     return `
-      <div class="mbti-dist-item">
-        <div class="mbti-dist-type">${type}</div>
-        <div style="flex:1">
-          <div style="font-size:11px;color:var(--dark);font-weight:600;margin-bottom:3px;">${t ? t.name : ''}</div>
-          <div class="mbti-dist-bar-wrap">
-            <div class="mbti-dist-bar" style="width:${barW}%"></div>
+      <div class="breed-acc-item" id="acc-${id}">
+        <div class="breed-acc-header" onclick="toggleBreedAcc('${id}')">
+          <span class="breed-acc-emoji">${d.emoji}</span>
+          <span class="breed-acc-name">${d.name}</span>
+          <span class="breed-acc-count">${n} 份</span>
+          <span class="breed-acc-arrow">▼</span>
+        </div>
+        <div class="breed-acc-body">
+          <div class="breed-acc-inner">
+            ${statsHTML}
+            ${mbtiHTML}
           </div>
         </div>
-        <div class="mbti-dist-pct">${pct}%</div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 
   document.getElementById('tab-mbti').innerHTML = `
     <div class="rank-card">
-      <div class="rank-card-title">🧠 MBTI 類型分佈</div>
-      <div style="font-size:12px;color:var(--brown);margin-bottom:14px;">台灣毛孩的人格類型比例（共 ${total} 份）</div>
-      <div class="mbti-grid">${items}</div>
-    </div>
-  `;
+      <div class="rank-card-title">🐾 各品種個性總覽</div>
+      <div style="font-size:12px;color:var(--brown);margin-bottom:14px;">
+        點選品種查看平均個性 · 共 ${submissions.length} 份問卷 · ${breeds.length} 個品種
+      </div>
+      <div class="breed-list">${accItems}</div>
+    </div>`;
+}
+
+function toggleBreedAcc(id) {
+  document.getElementById('acc-' + id).classList.toggle('open');
 }
 
 // ==================== INIT ====================
