@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台灣毛孩生活調查 🐾</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #FFF8F0;
+      --cream2: #FFF3E4;
+      --light: #FFE8CC;
+      --orange: #FF8C42;
+      --orange-dark: #E5722E;
+      --yellow: #FFD166;
+      --brown: #8B5E3C;
+      --dark: #3D2B1F;
+      --shadow: rgba(139,94,60,0.15);
+      --white: #FFFFFF;
+      --sage: #7DAA8A;
+      --pink: #FF9B9B;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+      background: var(--cream);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 600px;
+      min-height: 100vh;
+      background: var(--cream);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ===== SCREENS ===== */
+    .screen { display: none; flex-direction: column; min-height: 100vh; }
+    .screen.active { display: flex; }
+
+    /* ===== WELCOME ===== */
+    #scr-welcome {
+      background: linear-gradient(155deg, #FFF0DC 0%, #FFD6A5 100%);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+      gap: 0;
+    }
+
+    .welcome-paw {
+      font-size: 88px;
+      animation: paw-bounce 2s ease-in-out infinite;
+      margin-bottom: 24px;
+    }
+
+    @keyframes paw-bounce {
+      0%,100% { transform: translateY(0) rotate(-8deg); }
+      50% { transform: translateY(-18px) rotate(8deg); }
+    }
+
+    .welcome-title {
+      font-size: 34px;
+      font-weight: 900;
+      color: var(--dark);
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+
+    .welcome-subtitle {
+      font-size: 15px;
+      color: var(--brown);
+      line-height: 1.8;
+      margin-bottom: 36px;
+      max-width: 340px;
+    }
+
+    .btn-primary {
+      background: var(--orange);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 16px 48px;
+      font-size: 18px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      box-shadow: 0 6px 24px rgba(255,140,66,0.45);
+      transition: all .2s;
+      margin-bottom: 16px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,140,66,0.55); }
+    .btn-primary:active { transform: translateY(0); }
+
+    .welcome-note { font-size: 13px; color: var(--brown); opacity: 0.8; }
+
+    /* ===== SURVEY ===== */
+    #scr-survey { padding: 20px 20px 12px; }
+
+    .progress-wrap { margin-bottom: 20px; }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--brown);
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .progress-bar {
+      height: 7px;
+      background: var(--light);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--orange), var(--yellow));
+      border-radius: 4px;
+      transition: width .45s cubic-bezier(.4,.0,.2,1);
+    }
+
+    /* Question Card */
+    .q-card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 28px 22px 24px;
+      box-shadow: 0 4px 28px var(--shadow);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .q-emoji { font-size: 44px; margin-bottom: 14px; }
+
+    .q-title {
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--dark);
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+
+    .q-sub {
+      font-size: 13px;
+      color: var(--brown);
+      margin-bottom: 24px;
+      opacity: 0.85;
+    }
+
+    .opts { display: flex; flex-direction: column; gap: 11px; flex: 1; }
+
+    .opt {
+      background: var(--cream);
+      border: 2.5px solid var(--light);
+      border-radius: 16px;
+      padding: 14px 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all .18s;
+      text-align: left;
+      font-family: inherit;
+      width: 100%;
+    }
+    .opt:hover { border-color: var(--orange); background: #FFF4E6; }
+    .opt.sel {
+      border-color: var(--orange);
+      background: linear-gradient(135deg, #FFF4E6, #FFE8CC);
+      box-shadow: 0 3px 14px rgba(255,140,66,0.25);
+    }
+
+    .opt-ico { font-size: 28px; min-width: 36px; text-align: center; }
+
+    .opt-label { font-size: 15px; font-weight: 600; color: var(--dark); display: block; }
+    .opt-desc { font-size: 12px; color: var(--brown); margin-top: 2px; }
+
+    /* Breed grid */
+    .breed-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      flex: 1;
+      overflow-y: auto;
+      max-height: 55vh;
+      padding-right: 2px;
+    }
+
+    .breed-btn {
+      background: var(--cream);
+      border: 2.5px solid var(--light);
+      border-radius: 14px;
+      padding: 14px 8px 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: all .18s;
+      font-family: inherit;
+    }
+    .breed-btn:hover { border-color: var(--orange); background: #FFF4E6; }
+    .breed-btn.sel {
+      border-color: var(--orange);
+      background: linear-gradient(135deg, #FFF4E6, #FFE8CC);
+      box-shadow: 0 3px 10px rgba(255,140,66,0.25);
+    }
+    .breed-ico { font-size: 30px; display: block; margin-bottom: 6px; }
+    .breed-name { font-size: 13px; font-weight: 600; color: var(--dark); line-height: 1.3; }
+
+    /* Nav */
+    .nav-row { display: flex; gap: 12px; padding-top: 18px; }
+
+    .btn-back {
+      background: var(--white);
+      border: 2px solid var(--light);
+      border-radius: 50px;
+      padding: 13px 22px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--brown);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .18s;
+    }
+    .btn-back:hover { border-color: var(--orange); color: var(--orange); }
+
+    .btn-next {
+      background: var(--orange);
+      border: none;
+      border-radius: 50px;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      flex: 1;
+      transition: all .18s;
+      box-shadow: 0 4px 16px rgba(255,140,66,0.35);
+    }
+    .btn-next:disabled { background: #d0c8c0; box-shadow: none; cursor: not-allowed; }
+    .btn-next:not(:disabled):hover { background: var(--orange-dark); }
+
+    /* ===== LOADING ===== */
+    #scr-loading {
+      background: linear-gradient(155deg, #FFE8CC, #FFD6A5);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 20px;
+    }
+    .loading-paw { font-size: 80px; animation: spin-paw 1.2s ease-in-out infinite; }
+    @keyframes spin-paw {
+      0%,100% { transform: scale(1) rotate(-10deg); }
+      50% { transform: scale(1.15) rotate(10deg); }
+    }
+    .loading-title { font-size: 22px; font-weight: 700; color: var(--dark); }
+    .loading-sub { font-size: 14px; color: var(--brown); }
+    .loading-dots span {
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: var(--orange);
+      border-radius: 50%;
+      margin: 0 3px;
+      animation: dot-bounce 1.2s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: .2s; }
+    .loading-dots span:nth-child(3) { animation-delay: .4s; }
+    @keyframes dot-bounce {
+      0%,100% { transform: translateY(0); opacity: .4; }
+      50% { transform: translateY(-10px); opacity: 1; }
+    }
+
+    /* ===== RESULT ===== */
+    #scr-result {
+      background: linear-gradient(155deg, #FFF0DC 0%, #FFD6A5 100%);
+      align-items: center;
+      padding: 32px 24px 28px;
+      gap: 18px;
+    }
+
+    .result-top { text-align: center; }
+    .result-heading { font-size: 14px; color: var(--brown); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+    .result-title { font-size: 26px; font-weight: 900; color: var(--dark); }
+
+    /* Card Flip */
+    .card-scene {
+      width: 300px;
+      height: 420px;
+      perspective: 1000px;
+    }
+
+    .flip-card {
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform .9s cubic-bezier(.4,.2,.2,1);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .flip-card.flipped { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 30px 24px;
+    }
+
+    .card-front {
+      background: linear-gradient(135deg, #FF8C42 0%, #FFD166 100%);
+      box-shadow: 0 10px 40px rgba(255,140,66,0.4);
+    }
+    .front-icon { font-size: 72px; animation: float 3s ease-in-out infinite; margin-bottom: 16px; }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .front-hint { font-size: 16px; font-weight: 700; color: rgba(255,255,255,0.9); }
+    .front-hint-sub { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 6px; }
+
+    .card-back {
+      background: linear-gradient(135deg, #FFF8F0 0%, #FFE8CC 100%);
+      border: 3px solid var(--orange);
+      box-shadow: 0 10px 40px rgba(255,140,66,0.35);
+      transform: rotateY(180deg);
+      text-align: center;
+    }
+
+    .back-breed-emoji { font-size: 52px; margin-bottom: 8px; }
+    .back-mbti { font-size: 42px; font-weight: 900; color: var(--orange); letter-spacing: 5px; }
+    .back-name { font-size: 19px; font-weight: 700; color: var(--dark); margin: 6px 0 4px; }
+    .back-tagline { font-size: 12px; color: var(--brown); font-weight: 500; margin-bottom: 12px; opacity: .85; }
+    .back-desc { font-size: 12.5px; color: var(--brown); line-height: 1.7; margin-bottom: 14px; }
+    .back-traits { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center; }
+    .trait-tag {
+      background: var(--orange);
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .result-actions { display: flex; gap: 12px; width: 100%; max-width: 300px; }
+
+    .btn-outline {
+      flex: 1;
+      background: var(--white);
+      border: 2px solid var(--orange);
+      border-radius: 50px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--orange);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .18s;
+    }
+    .btn-outline:hover { background: #FFF4E6; }
+
+    .btn-ranking {
+      flex: 1;
+      background: var(--orange);
+      border: none;
+      border-radius: 50px;
+      padding: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 14px rgba(255,140,66,0.4);
+      transition: all .18s;
+    }
+    .btn-ranking:hover { background: var(--orange-dark); }
+
+    .flip-hint { font-size: 12px; color: var(--brown); opacity: .7; }
+
+    /* Dimension bars */
+    .dim-bars { width: 100%; max-width: 300px; }
+    .dim-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
+    .dim-lbl { min-width: 28px; font-weight: 700; color: var(--orange); }
+    .dim-bar-wrap { flex: 1; height: 10px; background: #FFE8CC; border-radius: 5px; overflow: hidden; }
+    .dim-bar-fill { height: 100%; background: linear-gradient(90deg, var(--orange), var(--yellow)); border-radius: 5px; }
+    .dim-rgt { min-width: 28px; font-weight: 700; color: var(--brown); text-align: right; }
+
+    /* ===== RANKINGS ===== */
+    #scr-rankings { padding: 0 0 40px; }
+
+    .rank-header {
+      background: linear-gradient(135deg, var(--orange), var(--yellow));
+      padding: 32px 24px 28px;
+      text-align: center;
+      color: white;
+    }
+    .rank-header-title { font-size: 26px; font-weight: 900; margin-bottom: 6px; }
+    .rank-header-sub { font-size: 14px; opacity: .85; }
+
+    .rank-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 16px 20px 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .rank-tabs::-webkit-scrollbar { display: none; }
+
+    .rank-tab {
+      background: var(--white);
+      border: 2px solid var(--light);
+      border-radius: 50px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--brown);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .18s;
+      font-family: inherit;
+    }
+    .rank-tab.active {
+      background: var(--orange);
+      border-color: var(--orange);
+      color: #fff;
+      box-shadow: 0 3px 12px rgba(255,140,66,0.35);
+    }
+
+    .rank-content { padding: 16px 20px; }
+
+    .rank-section { display: none; }
+    .rank-section.active { display: block; }
+
+    .rank-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 3px 20px var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .rank-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rank-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .rank-pos { font-size: 14px; font-weight: 900; color: var(--orange); min-width: 20px; }
+    .rank-pos.gold { color: #F5A623; }
+    .rank-pos.silver { color: #9B9B9B; }
+    .rank-pos.bronze { color: #C47E2A; }
+
+    .rank-breed-info { min-width: 90px; }
+    .rank-breed-name { font-size: 13px; font-weight: 600; color: var(--dark); }
+    .rank-breed-sub { font-size: 11px; color: var(--brown); }
+
+    .rank-bar-wrap { flex: 1; height: 18px; background: var(--light); border-radius: 9px; overflow: hidden; }
+    .rank-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--orange), var(--yellow));
+      border-radius: 9px;
+      transition: width 1s cubic-bezier(.4,.0,.2,1);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 6px;
+    }
+    .rank-bar-val { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.9); white-space: nowrap; }
+
+    .rank-score { font-size: 13px; font-weight: 700; color: var(--brown); min-width: 32px; text-align: right; }
+
+    /* MBTI distribution */
+    .mbti-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mbti-dist-item {
+      background: var(--cream);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mbti-dist-type { font-size: 16px; font-weight: 900; color: var(--orange); min-width: 52px; }
+    .mbti-dist-bar-wrap { flex: 1; height: 8px; background: var(--light); border-radius: 4px; overflow: hidden; }
+    .mbti-dist-bar { height: 100%; background: var(--orange); border-radius: 4px; }
+    .mbti-dist-pct { font-size: 12px; font-weight: 700; color: var(--brown); }
+
+    .rank-back-btn {
+      margin: 12px 20px 0;
+      background: var(--white);
+      border: 2px solid var(--light);
+      border-radius: 50px;
+      padding: 13px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--brown);
+      cursor: pointer;
+      font-family: inherit;
+      width: calc(100% - 40px);
+      transition: all .18s;
+    }
+    .rank-back-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+    /* Transitions */
+    @keyframes slideInR { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes slideInL { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .anim-in-r { animation: slideInR .28s ease; }
+    .anim-in-l { animation: slideInL .28s ease; }
+
+    /* ===== FLIP EFFECTS ===== */
+
+    /* 關燈遮罩 */
+    #dim-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0);
+      z-index: 9990;
+      pointer-events: all;
+      transition: background 0.38s ease;
+    }
+    #dim-overlay.lights-off { background: rgba(0,0,0,0.93); }
+
+    /* 星星粒子 */
+    .sparkle-p {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%,-50%) scale(0);
+      animation: sparkle-burst var(--dur) ease-out var(--delay) forwards;
+    }
+    @keyframes sparkle-burst {
+      0%   { transform: translate(-50%,-50%) scale(0) rotate(0deg); opacity: 1; }
+      55%  { opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(1.1) rotate(var(--rot)); opacity: 0; }
+    }
+
+    /* 卡片光澤掃過 */
+    .card-shimmer {
+      position: absolute; inset: 0;
+      border-radius: 22px;
+      pointer-events: none;
+      z-index: 2;
+      background: linear-gradient(108deg,
+        transparent 25%,
+        rgba(255,255,255,0.55) 50%,
+        transparent 75%
+      );
+      background-size: 250% 100%;
+      background-position: 250% 0;
+      animation: shimmer-sweep 0.75s ease-out 0.05s forwards;
+    }
+    @keyframes shimmer-sweep {
+      from { background-position: 250% 0; }
+      to   { background-position: -250% 0; }
+    }
+
+    /* 翻卡片時卡片場景發光暈 */
+    .card-scene.glow {
+      filter: drop-shadow(0 0 18px rgba(255,220,100,0.7));
+      transition: filter 0.5s ease;
+    }
+
+    @media (max-width: 420px) {
+      .welcome-title { font-size: 28px; }
+      .card-scene { width: 270px; height: 380px; }
+      .back-mbti { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- WELCOME -->
+  <div id="scr-welcome" class="screen active">
+    <div class="welcome-paw">🐾</div>
+    <h1 class="welcome-title">台灣毛孩<br>生活大調查</h1>
+    <p class="welcome-subtitle">
+      每隻狗狗都是獨一無二的！<br>
+      用 13 道題找出你毛孩的<br>
+      <strong>MBTI 人格類型</strong>，<br>
+      還能看看台灣各品種狗狗的排行榜 📊
+    </p>
+    <button class="btn-primary" onclick="startSurvey()">開始填問卷 🐶</button>
+    <p class="welcome-note">共 13 題，約 3 分鐘完成</p>
+  </div>
+
+  <!-- SURVEY -->
+  <div id="scr-survey" class="screen">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span id="pg-label">第 1 題</span>
+        <span id="pg-frac">1 / 13</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="pg-fill" style="width:8%"></div>
+      </div>
+    </div>
+    <div id="q-container" class="q-card"></div>
+    <div class="nav-row">
+      <button class="btn-back" id="btn-back" onclick="goBack()">← 上一題</button>
+      <button class="btn-next" id="btn-next" onclick="goNext()" disabled>下一題 →</button>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="scr-loading" class="screen">
+    <div class="loading-paw">🐾</div>
+    <div class="loading-title">幫毛孩分析個性中</div>
+    <div class="loading-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="loading-sub">找出最適合的人格類型...</div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="scr-result" class="screen">
+    <div class="result-top">
+      <div class="result-heading">🎊 結果出爐</div>
+      <div class="result-title" id="res-title">你的毛孩是...</div>
+    </div>
+
+    <div class="card-scene">
+      <div class="flip-card" id="flip-card" onclick="flipCard()">
+        <div class="card-face card-front">
+          <div class="front-icon" id="front-icon">🐾</div>
+          <div class="front-hint">點我翻開卡片</div>
+          <div class="front-hint-sub">揭曉毛孩的 MBTI 人格</div>
+        </div>
+        <div class="card-face card-back" id="card-back">
+          <!-- dynamically filled -->
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-hint" id="flip-hint">👆 點擊卡片揭曉結果</div>
+
+    <div class="dim-bars" id="dim-bars"></div>
+
+    <div class="result-actions">
+      <button class="btn-outline" onclick="resetSurvey()">再填一次</button>
+      <button class="btn-ranking" onclick="showRankings()">看排行榜 📊</button>
+    </div>
+  </div>
+
+  <!-- RANKINGS -->
+  <div id="scr-rankings" class="screen">
+    <div class="rank-header">
+      <div class="rank-header-title">🏆 台灣毛孩排行榜</div>
+      <div class="rank-header-sub">根據問卷數據統計各品種狗狗特質</div>
+    </div>
+
+    <div class="rank-tabs">
+      <button class="rank-tab active" onclick="switchTab(this,'tab-exercise')">🏃 運動量</button>
+      <button class="rank-tab" onclick="switchTab(this,'tab-food')">🍖 食量</button>
+      <button class="rank-tab" onclick="switchTab(this,'tab-vocal')">🔊 話嘮</button>
+      <button class="rank-tab" onclick="switchTab(this,'tab-social')">👥 社交力</button>
+      <button class="rank-tab" onclick="switchTab(this,'tab-cling')">💔 分離焦慮</button>
+      <button class="rank-tab" onclick="switchTab(this,'tab-mbti')">🧠 MBTI</button>
+    </div>
+
+    <div class="rank-content">
+      <div id="tab-exercise" class="rank-section active"></div>
+      <div id="tab-food" class="rank-section"></div>
+      <div id="tab-vocal" class="rank-section"></div>
+      <div id="tab-social" class="rank-section"></div>
+      <div id="tab-cling" class="rank-section"></div>
+      <div id="tab-mbti" class="rank-section"></div>
+    </div>
+
+    <button class="rank-back-btn" onclick="showResult()">← 回到我的結果</button>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+// ==================== DATA ====================
+
+const BREEDS = {
+  small: [
+    { id:'mini_poodle',    name:'迷你貴賓犬',     emoji:'🐩' },
+    { id:'chihuahua',      name:'吉娃娃',         emoji:'🐕' },
+    { id:'maltese',        name:'馬爾濟斯',       emoji:'🐕' },
+    { id:'yorkshire',      name:'約克夏㹴',       emoji:'🐕' },
+    { id:'pomeranian',     name:'博美犬',         emoji:'🦊' },
+    { id:'shih_tzu',       name:'西施犬',         emoji:'🐕' },
+    { id:'bichon',         name:'比熊犬',         emoji:'🐕' },
+    { id:'mini_dachshund', name:'迷你臘腸犬',     emoji:'🌭' },
+    { id:'papillon',       name:'蝴蝶犬',         emoji:'🦋' },
+    { id:'havanese',       name:'哈瓦那犬',       emoji:'🐕' },
+    { id:'italian_grey',   name:'義大利靈緹',     emoji:'🐕' },
+    { id:'jack_russell',   name:'傑克羅素㹴',     emoji:'🐕' },
+    { id:'japanese_chin',  name:'日本狆',         emoji:'🐕' },
+    { id:'mini_pinscher',  name:'迷你杜賓',       emoji:'🐕' },
+    { id:'cavalier_ks',    name:'查理士王小獵犬', emoji:'🐕' },
+    { id:'lion_dog',       name:'獅子狗',         emoji:'🦁' },
+    { id:'scottish_terr',  name:'蘇格蘭㹴',       emoji:'🐕' },
+    { id:'mixed_small',    name:'米克斯（小型）', emoji:'🐾' },
+    { id:'other_small',    name:'其他小型犬',     emoji:'🐾' },
+  ],
+  medium: [
+    { id:'shiba',          name:'柴犬',       emoji:'🦊' },
+    { id:'french_bull',    name:'法國鬥牛犬', emoji:'🐾' },
+    { id:'beagle',         name:'米格魯',     emoji:'🐕' },
+    { id:'corgi',          name:'柯基犬',     emoji:'🐕' },
+    { id:'taiwan_dog',     name:'台灣土狗',   emoji:'🐕' },
+    { id:'mini_schnauzer', name:'迷你雪納瑞', emoji:'🐕' },
+    { id:'pug',            name:'巴哥犬',     emoji:'🐷' },
+    { id:'border_collie',  name:'邊境牧羊犬', emoji:'🐑' },
+    { id:'aussie',         name:'澳洲牧羊犬', emoji:'🐕' },
+    { id:'cocker',         name:'可卡獵犬',   emoji:'🐕' },
+    { id:'boston',         name:'波士頓㹴',   emoji:'🐕' },
+    { id:'westie',         name:'西高地白㹴', emoji:'🐕' },
+    { id:'wire_fox_terr',  name:'剛毛獵狐㹴', emoji:'🐕' },
+    { id:'whippet',        name:'惠比特',     emoji:'🐕' },
+    { id:'doberman_med',   name:'杜賓犬',     emoji:'🐕' },
+    { id:'shar_pei',       name:'沙皮狗',     emoji:'🐕' },
+    { id:'kishu',          name:'紀州犬',     emoji:'🐕' },
+    { id:'mixed_medium',   name:'米克斯（中型）', emoji:'🐾' },
+    { id:'other_medium',   name:'其他中型犬', emoji:'🐾' },
+  ],
+  large: [
+    { id:'labrador',       name:'拉布拉多犬', emoji:'🐕' },
+    { id:'golden',         name:'黃金獵犬',   emoji:'⭐' },
+    { id:'german_shep',    name:'德國牧羊犬', emoji:'🐕' },
+    { id:'husky',          name:'哈士奇',     emoji:'🐺' },
+    { id:'samoyed',        name:'薩摩耶犬',   emoji:'☁️' },
+    { id:'alaskan',        name:'阿拉斯加',   emoji:'🐺' },
+    { id:'std_poodle',     name:'標準貴賓犬', emoji:'🐩' },
+    { id:'border_collie_l',name:'邊境牧羊犬', emoji:'🐑' },
+    { id:'doberman',       name:'杜賓犬',     emoji:'🐕' },
+    { id:'great_pyr',      name:'大白熊犬',   emoji:'🐻' },
+    { id:'boxer',          name:'拳師犬',     emoji:'🥊' },
+    { id:'mastiff',        name:'獒犬',       emoji:'🦁' },
+    { id:'std_schnauzer',  name:'標準雪納瑞', emoji:'🐕' },
+    { id:'akita',          name:'秋田犬',     emoji:'🐕' },
+    { id:'greyhound',      name:'靈緹',       emoji:'🐕' },
+    { id:'afghan_hound',   name:'阿富汗獵犬', emoji:'🐕' },
+    { id:'bernese',        name:'伯恩山犬',   emoji:'🏔️' },
+    { id:'rottweiler',     name:'羅威那犬',   emoji:'🐕' },
+    { id:'saint_bernard',  name:'聖伯納犬',   emoji:'🐕' },
+    { id:'other_large',    name:'其他大型犬', emoji:'🐾' },
+  ]
+};
+
+const QUESTIONS = [
+  {
+    id:'size', emoji:'⚖️',
+    title:'你的毛孩體型屬於哪種？',
+    sub:'以成犬體重為準',
+    type:'single',
+    opts:[
+      { v:'small',  ico:'🐩', lbl:'小型犬', desc:'體重未滿 10 公斤' },
+      { v:'medium', ico:'🦮', lbl:'中型犬', desc:'體重 10 ～ 20 公斤' },
+      { v:'large',  ico:'🐕', lbl:'大型犬', desc:'體重超過 20 公斤' },
+    ]
+  },
+  {
+    id:'breed', emoji:'🐾',
+    title:'是哪個品種呢？',
+    sub:'找不到你的品種可以選「其他」',
+    type:'breed',
+  },
+  {
+    id:'age', emoji:'🎂',
+    title:'毛孩幾歲了？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'puppy',  ico:'🍼', lbl:'幼幼犬',  desc:'未滿 1 歲' },
+      { v:'young',  ico:'🌱', lbl:'青少年期', desc:'1 ～ 3 歲' },
+      { v:'adult',  ico:'💪', lbl:'壯年期',   desc:'3 ～ 7 歲' },
+      { v:'senior', ico:'🧓', lbl:'中老年',   desc:'7 歲以上' },
+    ]
+  },
+  {
+    id:'gender', emoji:'⚥',
+    title:'公的還是母的？有沒有絕育？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'male_intact',   ico:'♂️', lbl:'公狗 ／ 未絕育', desc:'' },
+      { v:'male_neutered', ico:'♂️', lbl:'公狗 ／ 已絕育', desc:'' },
+      { v:'female_intact', ico:'♀️', lbl:'母狗 ／ 未絕育', desc:'' },
+      { v:'female_spayed', ico:'♀️', lbl:'母狗 ／ 已絕育', desc:'' },
+    ]
+  },
+  {
+    id:'exercise', emoji:'🏃',
+    title:'毛孩的運動量怎麼樣？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'none', ico:'🛋️', lbl:'根本沒在動',    desc:'沙發就是整個世界' },
+      { v:'pee',  ico:'🚽', lbl:'每天出門尿尿',  desc:'尿完馬上回家，謝謝' },
+      { v:'walk', ico:'🚶', lbl:'每天出門散步',  desc:'悠哉走走看風景' },
+      { v:'run',  ico:'🏅', lbl:'每天跑十公里',  desc:'不跑完不讓回家' },
+    ]
+  },
+  {
+    id:'food', emoji:'🍖',
+    title:'毛孩的食慾如何？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'picky',   ico:'😒', lbl:'吃飯都要拜託',     desc:'每餐都要哄半天才肯吃' },
+      { v:'normal',  ico:'😌', lbl:'很乖的吃完',       desc:'不多也不少，剛剛好' },
+      { v:'hungry',  ico:'😋', lbl:'吃完還會一直討',   desc:'舔完碗還要盯著你' },
+      { v:'vacuum',  ico:'🌀', lbl:'快被牠吃垮了',     desc:'全家食物都不安全' },
+    ]
+  },
+  {
+    id:'vocal', emoji:'🔊',
+    title:'毛孩的叫聲怎麼樣？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'silent',   ico:'🤫', lbl:'不太會叫',         desc:'安靜得像隻貓' },
+      { v:'rarely',   ico:'🔕', lbl:'偶爾叫一兩聲',     desc:'叫了一聲自己也嚇到' },
+      { v:'moderate', ico:'🔔', lbl:'有點吵',            desc:'鄰居臭臉但沒說什麼' },
+      { v:'loud',     ico:'📣', lbl:'不斷被鄰居投訴',   desc:'和管委會很熟了' },
+    ]
+  },
+  {
+    id:'sleep', emoji:'😴',
+    title:'毛孩的睡眠習慣？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'always_awake', ico:'👀', lbl:'隨時都醒著',      desc:'到底有沒有在睡覺？' },
+      { v:'routine',      ico:'🕐', lbl:'跟我一起作息',    desc:'我睡牠睡，我醒牠醒' },
+      { v:'pushy',        ico:'🌙', lbl:'一直催促我去睡',  desc:'牠才是這個家的鬧鐘' },
+      { v:'always_sleep', ico:'💤', lbl:'整天都在睡',      desc:'睡超過 18 小時的存在' },
+    ]
+  },
+  {
+    id:'stranger', emoji:'👥',
+    title:'見到陌生人的反應？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'hide',   ico:'🫣', lbl:'怕生躲起來',     desc:'躲在主人後面當隱形人' },
+      { v:'ignore', ico:'😑', lbl:'無視',            desc:'你是誰？不重要' },
+      { v:'wag',    ico:'🐶', lbl:'搖尾巴歡迎',     desc:'新朋友！快來摸我！' },
+      { v:'jump',   ico:'🤸', lbl:'直接撲倒對方',   desc:'你的臉就是我的臉' },
+    ]
+  },
+  {
+    id:'separation', emoji:'🚪',
+    title:'主人出門時的分離焦慮程度？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'ok',       ico:'😎', lbl:'獨處很 OK',      desc:'你去吧，我有沙發陪' },
+      { v:'bark_lil', ico:'😢', lbl:'叫一下就好',     desc:'嗚嗚嗚...好吧你去' },
+      { v:'dramatic', ico:'💔', lbl:'每次都生離死別', desc:'哭到天崩地裂再說' },
+    ]
+  },
+  {
+    id:'living', emoji:'🏠',
+    title:'毛孩住在什麼環境？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'apartment',  ico:'🏢', lbl:'公寓 ／ 無院子',   desc:'電梯大樓，樓梯是最大活動空間' },
+      { v:'balcony',    ico:'🏙️', lbl:'公寓 ／ 有陽台',   desc:'至少可以出去吹吹風' },
+      { v:'house_yard', ico:'🏡', lbl:'透天 ／ 有院子',   desc:'有院子可以亂跑' },
+      { v:'countryside',ico:'🌳', lbl:'鄉下自由跑',       desc:'整個村子都是我的領地' },
+    ]
+  },
+  {
+    id:'other_pets', emoji:'🐱',
+    title:'家裡還有其他寵物嗎？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'none',   ico:'🏠', lbl:'沒有，是獨生子女', desc:'集全家寵愛於一身' },
+      { v:'dogs',   ico:'🐕', lbl:'有其他狗狗',        desc:'有狗兄弟姐妹' },
+      { v:'cats',   ico:'🐱', lbl:'有貓',               desc:'跟貓主子同住' },
+      { v:'others', ico:'🐹', lbl:'有其他動物',         desc:'兔子、鳥、魚等' },
+    ]
+  },
+  {
+    id:'years', emoji:'📅',
+    title:'養牠幾年了？',
+    sub:'',
+    type:'single',
+    opts:[
+      { v:'new',     ico:'🌟', lbl:'不到 1 年',  desc:'新手鏟屎官上路' },
+      { v:'few',     ico:'📗', lbl:'1 ～ 3 年',  desc:'有點經驗了' },
+      { v:'several', ico:'📘', lbl:'3 ～ 7 年',  desc:'老鳥鏟屎官' },
+      { v:'long',    ico:'📕', lbl:'7 年以上',   desc:'資深老幹部' },
+    ]
+  },
+];
+
+const MBTI_TYPES = {
+  // bg: 卡片背景漸層  light: true = 深色背景用白色文字
+  ESTJ:{ name:'管家犬',   tag:'井然有序的小主人',   emoji:'👔', desc:'你的毛孩超有原則！總是期待固定的吃飯、散步時間，還會用眼神督促你守時。對陌生人保持適度的禮貌，但第一優先永遠是你。',                        traits:['守時','有原則','忠誠','自律'],     bg:'linear-gradient(135deg,#F7971E,#FFD200)',  light:false },
+  ESTP:{ name:'探險家犬', tag:'每天都是新奇的探索',  emoji:'🗺️', desc:'活力充沛、隨時準備冒險！不在乎計畫，看到有趣的東西就衝過去。陌生人？新朋友嘛！任何地方都能找到樂趣。',                                        traits:['活潑','大膽','隨性','好奇'],       bg:'linear-gradient(135deg,#F7797D,#FBD786)',  light:false },
+  ESFJ:{ name:'派對犬',   tag:'讓所有人都開心',     emoji:'🎉', desc:'天生的社交蝴蝶！愛所有人，也希望所有人都愛牠。有客人來超開心，你不在家會掛念，但你回來會大力歡迎！',                                                traits:['友善','熱情','愛撒嬌','黏人'],     bg:'linear-gradient(135deg,#FF9A9E,#FECFEF)',  light:false },
+  ESFP:{ name:'開心果犬', tag:'永遠是場上的焦點',   emoji:'🎭', desc:'牠就是要熱鬧！任何聚會都要參與，對每個人都好奇，總能用最搞笑的方式引起注意。快樂最重要！',                                                          traits:['搞笑','熱情','愛玩','隨興'],       bg:'linear-gradient(135deg,#FFE259,#FFA751)',  light:false },
+  ENTJ:{ name:'領袖犬',   tag:'我說了算的那個',     emoji:'👑', desc:'有支配欲的存在！對主人忠誠但也有自己的主見，不會輕易妥協。看到陌生人用評估的眼神打量，隨時在規劃領土。',                                              traits:['自信','果斷','忠誠','霸氣'],       bg:'linear-gradient(135deg,#4776E6,#8E54E9)',  light:true  },
+  ENTP:{ name:'鬼靈精犬', tag:'最聰明也最難搞',     emoji:'🧪', desc:'超聰明但用在歪地方！總是找到新方法打開冰箱、拆掉玩具。對任何規定都試圖找漏洞，讓你哭笑不得。',                                                          traits:['聰明','創意','頑皮','難搞'],       bg:'linear-gradient(135deg,#11998E,#38EF7D)',  light:false },
+  ENFJ:{ name:'療癒犬',   tag:'你難過牠比你更難過', emoji:'💝', desc:'情感雷達超準！你一皺眉頭牠就靠過來輕輕嗅你。愛所有家庭成員，總是試著讓每個人開心，是家裡的情緒支柱。',                                                traits:['體貼','敏感','溫柔','治癒'],       bg:'linear-gradient(135deg,#02AAB0,#00CDAC)',  light:false },
+  ENFP:{ name:'夢想家犬', tag:'活在自己的詩意世界', emoji:'🦄', desc:'熱情如火但也容易分心！今天喜歡這個玩具，明天就忘了。對每件新事物都超興奮，連一片葉子都能玩半小時。',                                                    traits:['天真','熱情','創意','容易分心'],   bg:'linear-gradient(135deg,#C471F5,#FA71CD)',  light:true  },
+  ISTJ:{ name:'守衛犬',   tag:'責任感第一',         emoji:'🛡️', desc:'最可靠的存在！習慣固定作息，對任何改變都需要時間適應。對陌生人有點警戒，但對家人絕對忠心耿耿。',                                                        traits:['忠誠','謹慎','可靠','固執'],       bg:'linear-gradient(135deg,#134E5E,#71B280)',  light:true  },
+  ISTP:{ name:'獨行俠犬', tag:'我行我素的冷靜派',   emoji:'🕶️', desc:'獨立自主！需要陪伴但不喜歡被過度束縛。對陌生人冷靜評估，不輕易表達情感，但對信任的人有自己獨特的溫柔。',                                              traits:['獨立','冷靜','神秘','觀察力強'],   bg:'linear-gradient(135deg,#4DA0B0,#D39D38)',  light:false },
+  ISFJ:{ name:'護家犬',   tag:'默默守護你的小天使', emoji:'😇', desc:'安靜但深情！不喜歡熱鬧，但一直在你身邊。對家人保護欲很強，對陌生人需要暖機，暖了就是一輩子的朋友。',                                                    traits:['保護','忠誠','細心','安靜'],       bg:'linear-gradient(135deg,#A8C0FF,#3F2B96)',  light:true  },
+  ISFP:{ name:'藝術家犬', tag:'用自己的節奏生活',   emoji:'🎨', desc:'溫柔又有自己的個性！對環境很敏感，不喜歡衝突，但會用自己的方式表達愛。安靜、溫和，卻讓人忍不住多看一眼。',                                              traits:['敏感','溫柔','藝術感','個性'],     bg:'linear-gradient(135deg,#FC5C7D,#6A3093)',  light:true  },
+  INTJ:{ name:'哲學犬',   tag:'深思熟慮的觀察者',   emoji:'🔭', desc:'看起來冷漠，內心戲豐富！用深邃的眼神觀察周遭，對陌生人有強烈的評估機制。需要很長時間才能真正信任一個人，但值得。',                                      traits:['深沉','獨立','智慧','神秘'],       bg:'linear-gradient(135deg,#232526,#414345)',  light:true  },
+  INTP:{ name:'思想家犬', tag:'永遠在想些什麼',     emoji:'💭', desc:'最喜歡發呆冥想！看起來在睡覺，其實在思考人生。對新刺激需要慢慢適應，但想通了後有自己獨特的見解（就是說不出口）。',                                      traits:['愛思考','自在','安靜','深度'],     bg:'linear-gradient(135deg,#0F2027,#2C5364)',  light:true  },
+  INFJ:{ name:'神秘犬',   tag:'最難懂但最深情',     emoji:'🌙', desc:'罕見而特別！有強烈的直覺，能感知你的情緒。表面安靜，但內心世界複雜豐富。對認定的人深情款款，對不熟的人高深莫測。',                                      traits:['神秘','深情','直覺強','獨特'],     bg:'linear-gradient(135deg,#654EA3,#EAA8C8)',  light:true  },
+  INFP:{ name:'夢幻犬',   tag:'最溫柔的靈魂',       emoji:'🌸', desc:'對世界充滿善意，也特別敏感。喜歡安靜地在你身邊，不需要太多互動，光是存在就讓你感到平靜。是不可或缺的溫柔存在。',                                          traits:['溫柔','敏感','詩意','善良'],       bg:'linear-gradient(135deg,#DA4453,#89216B)',  light:true  },
+};
+
+// ==================== FIREBASE CONFIG ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyDMuYcM4GfhDAOzO54AtNGWvKGdhxigGXA",
+  authDomain: "dog-mbti-2026.firebaseapp.com",
+  projectId: "dog-mbti-2026",
+  storageBucket: "dog-mbti-2026.firebasestorage.app",
+  messagingSenderId: "1013496622026",
+  appId: "1:1013496622026:web:d41b62f7ad30db3da9bd33"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ==================== STATE ====================
+
+const state = {
+  page: 0,       // current question index
+  answers: {},   // { questionId: value }
+  mbti: '',
+  breedData: null,
+};
+
+// ==================== NAVIGATION ====================
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = '';
+  });
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.style.display = 'flex';
+  window.scrollTo(0,0);
+}
+
+function startSurvey() {
+  state.page = 0;
+  state.answers = {};
+  showScreen('scr-survey');
+  renderQuestion();
+}
+
+function goBack() {
+  if (state.page <= 0) { showScreen('scr-welcome'); return; }
+  // skip breed if going back past it when no size is set
+  state.page--;
+  if (QUESTIONS[state.page].id === 'breed' && !state.answers.size) {
+    state.page--;
+  }
+  renderQuestion(true);
+}
+
+function goNext() {
+  const q = QUESTIONS[state.page];
+  if (!state.answers[q.id]) return;
+
+  // If just answered size, reset breed answer
+  if (q.id === 'size') {
+    delete state.answers.breed;
+  }
+
+  state.page++;
+  if (state.page >= QUESTIONS.length) {
+    submitSurvey();
+    return;
+  }
+  renderQuestion();
+}
+
+function renderQuestion(back = false) {
+  const q = QUESTIONS[state.page];
+  const total = QUESTIONS.length;
+  const frac = state.page + 1;
+
+  document.getElementById('pg-label').textContent = `第 ${frac} 題`;
+  document.getElementById('pg-frac').textContent = `${frac} / ${total}`;
+  document.getElementById('pg-fill').style.width = `${Math.round(frac / total * 100)}%`;
+
+  document.getElementById('btn-back').style.display = state.page === 0 ? 'none' : '';
+  document.getElementById('btn-next').disabled = !state.answers[q.id];
+
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.textContent = state.page === QUESTIONS.length - 1 ? '查看結果 🐾' : '下一題 →';
+
+  const container = document.getElementById('q-container');
+  container.innerHTML = '';
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;flex:1;';
+  wrap.classList.add(back ? 'anim-in-l' : 'anim-in-r');
+
+  if (q.type === 'breed') {
+    wrap.innerHTML = buildBreedHTML(q);
+  } else {
+    wrap.innerHTML = buildSingleHTML(q);
+  }
+
+  container.appendChild(wrap);
+
+  // attach events
+  if (q.type === 'breed') {
+    wrap.querySelectorAll('.breed-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        wrap.querySelectorAll('.breed-btn').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+        state.answers[q.id] = btn.dataset.v;
+        state.breedData = JSON.parse(btn.dataset.info);
+        document.getElementById('btn-next').disabled = false;
+      });
+    });
+  } else {
+    wrap.querySelectorAll('.opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        wrap.querySelectorAll('.opt').forEach(b => b.classList.remove('sel'));
+        btn.classList.add('sel');
+        state.answers[q.id] = btn.dataset.v;
+        document.getElementById('btn-next').disabled = false;
+      });
+    });
+  }
+
+  // restore selection
+  if (state.answers[q.id]) {
+    const existing = wrap.querySelector(`[data-v="${state.answers[q.id]}"]`);
+    if (existing) existing.classList.add(q.type === 'breed' ? 'sel' : 'sel');
+  }
+}
+
+function buildSingleHTML(q) {
+  const selV = state.answers[q.id];
+  const opts = q.opts.map(o => `
+    <button class="opt${selV === o.v ? ' sel' : ''}" data-v="${o.v}">
+      <span class="opt-ico">${o.ico}</span>
+      <span class="opt-text">
+        <span class="opt-label">${o.lbl}</span>
+        ${o.desc ? `<span class="opt-desc">${o.desc}</span>` : ''}
+      </span>
+    </button>
+  `).join('');
+
+  return `
+    <div class="q-emoji">${q.emoji}</div>
+    <div class="q-title">${q.title}</div>
+    ${q.sub ? `<div class="q-sub">${q.sub}</div>` : '<div style="margin-bottom:24px"></div>'}
+    <div class="opts">${opts}</div>
+  `;
+}
+
+function buildBreedHTML(q) {
+  const sizeKey = state.answers.size || 'small';
+  const breeds = BREEDS[sizeKey];
+  const selV = state.answers[q.id];
+
+  const btns = breeds.map(b => `
+    <button class="breed-btn${selV === b.id ? ' sel' : ''}" data-v="${b.id}" data-info='${JSON.stringify(b)}'>
+      <span class="breed-ico">${b.emoji}</span>
+      <span class="breed-name">${b.name}</span>
+    </button>
+  `).join('');
+
+  return `
+    <div class="q-emoji">${q.emoji}</div>
+    <div class="q-title">${q.title}</div>
+    <div class="q-sub">${q.sub}</div>
+    <div class="breed-grid">${btns}</div>
+  `;
+}
+
+// ==================== MBTI CALCULATION ====================
+
+function calcMBTI(ans) {
+  // E/I: stranger + separation
+  const strangerScore = { hide:-2, ignore:-1, wag:1, jump:2 };
+  const sepScore      = { ok:-1, bark_lil:0, dramatic:2 };
+  const EI = (strangerScore[ans.stranger] || 0) + (sepScore[ans.separation] || 0);
+
+  // S/N: exercise level
+  const exScore = { none:-2, pee:-1, walk:1, run:2 };
+  const SN = exScore[ans.exercise] || 0;
+
+  // T/F: food appetite
+  const foodScore = { picky:-2, normal:-1, hungry:1, vacuum:2 };
+  const TF = foodScore[ans.food] || 0;
+
+  // J/P: vocal level
+  const vocalScore = { silent:-2, rarely:-1, moderate:1, loud:2 };
+  const JP = vocalScore[ans.vocal] || 0;
+
+  return {
+    type: `${EI>0?'E':'I'}${SN>0?'S':'N'}${TF>0?'F':'T'}${JP>0?'J':'P'}`,
+    scores: { EI, SN, TF, JP }
+  };
+}
+
+// ==================== STORAGE (localStorage → 之後換 Firestore) ====================
+
+async function saveSubmission(data) {
+  try {
+    await db.collection('dog_surveys').add(data);
+  } catch (e) {
+    console.warn('Firebase 寫入失敗，備用 localStorage', e);
+    const local = JSON.parse(localStorage.getItem('dog_survey') || '[]');
+    local.push(data);
+    localStorage.setItem('dog_survey', JSON.stringify(local));
+  }
+}
+
+async function loadSubmissions() {
+  try {
+    const snap = await db.collection('dog_surveys').get();
+    return snap.docs.map(d => d.data());
+  } catch (e) {
+    console.warn('Firebase 讀取失敗，備用 localStorage', e);
+    return JSON.parse(localStorage.getItem('dog_survey') || '[]');
+  }
+}
+
+// ==================== SUBMIT ====================
+
+async function submitSurvey() {
+  showScreen('scr-loading');
+  const result = calcMBTI(state.answers);
+  state.mbti = result.type;
+  state.mbtiScores = result.scores;
+
+  const payload = {
+    breed:      state.answers.breed || 'unknown',
+    breedName:  state.breedData ? state.breedData.name  : '未知品種',
+    breedEmoji: state.breedData ? state.breedData.emoji : '🐾',
+    size:       state.answers.size,
+    age:        state.answers.age,
+    gender:     state.answers.gender,
+    exercise:   state.answers.exercise,
+    food:       state.answers.food,
+    vocal:      state.answers.vocal,
+    sleep:      state.answers.sleep,
+    stranger:   state.answers.stranger,
+    separation: state.answers.separation,
+    living:     state.answers.living,
+    otherPets:  state.answers.other_pets,
+    years:      state.answers.years,
+    mbti:       state.mbti,
+    ts:         Date.now(),
+  };
+
+  await saveSubmission(payload);
+
+  setTimeout(() => {
+    buildResult();
+    showScreen('scr-result');
+  }, 1800);
+}
+
+// ==================== RESULT ====================
+
+function buildResult() {
+  const mbti = state.mbti;
+  const scores = state.mbtiScores;
+  const type = MBTI_TYPES[mbti] || MBTI_TYPES['INFP'];
+  const breed = state.breedData;
+
+  // Front icon = breed emoji
+  document.getElementById('front-icon').textContent = breed ? breed.emoji : '🐾';
+  document.getElementById('res-title').textContent = breed ? `${breed.name} 的個性是...` : '你的毛孩是...';
+
+  // Apply type-specific theme to card back
+  const cardBack = document.getElementById('card-back');
+  cardBack.style.background = type.bg;
+  cardBack.style.border = type.light ? '1.5px solid rgba(255,255,255,0.18)' : '3px solid var(--orange)';
+  cardBack.style.boxShadow = type.light
+    ? '0 12px 48px rgba(0,0,0,0.45)'
+    : '0 12px 48px rgba(255,140,66,0.4)';
+
+  const tc   = type.light ? '#FFFFFF'              : '#3D2B1F';
+  const tc2  = type.light ? 'rgba(255,255,255,0.78)' : '#8B5E3C';
+  const ac   = type.light ? '#FFE57A'              : '#FF8C42';
+  const tagBg    = type.light ? 'rgba(255,255,255,0.18)' : 'rgba(255,140,66,0.12)';
+  const tagColor = type.light ? '#FFFFFF'              : '#FF8C42';
+  const tagBord  = type.light ? 'rgba(255,255,255,0.35)' : '#FF8C42';
+
+  cardBack.innerHTML = `
+    <div class="back-breed-emoji">${breed ? breed.emoji : '🐾'}</div>
+    <div class="back-mbti" style="color:${ac}">${mbti}</div>
+    <div class="back-name" style="color:${tc}">${type.emoji} ${type.name}</div>
+    <div class="back-tagline" style="color:${tc2}">「${type.tag}」</div>
+    <div class="back-desc" style="color:${tc2}">${type.desc}</div>
+    <div class="back-traits">${type.traits.map(t=>`<span class="trait-tag" style="background:${tagBg};color:${tagColor};border:1px solid ${tagBord}">${t}</span>`).join('')}</div>
+  `;
+
+  // Dimension bars
+  const dims = [
+    { lft:'E', rgt:'I', score: scores.EI, max:4 },
+    { lft:'S', rgt:'N', score: scores.SN, max:4 },
+    { lft:'F', rgt:'T', score: scores.TF, max:4 },
+    { lft:'J', rgt:'P', score: scores.JP, max:4 },
+  ];
+
+  document.getElementById('dim-bars').innerHTML = dims.map(d => {
+    // score: -4 to +4, map to 0-100%
+    const pct = Math.round((d.score + d.max) / (d.max * 2) * 100);
+    const lftPct = 100 - pct;
+    const dominant = d.score >= 0 ? d.lft : d.rgt;
+    return `
+      <div class="dim-row">
+        <span class="dim-lbl" style="color:${d.score>=0?'var(--orange)':'var(--brown)'}">${d.lft}</span>
+        <div class="dim-bar-wrap">
+          <div class="dim-bar-fill" style="width:${pct}%;${d.score<0?'margin-left:auto;background:linear-gradient(90deg,var(--yellow),var(--brown));':''}"></div>
+        </div>
+        <span class="dim-rgt" style="color:${d.score<0?'var(--orange)':'var(--brown)'}">${d.rgt}</span>
+      </div>
+    `;
+  }).join('');
+}
+
+let _flipping = false;
+
+function flipCard() {
+  if (_flipping) return;
+  _flipping = true;
+
+  const card   = document.getElementById('flip-card');
+  const scene  = card.parentElement;
+  const hint   = document.getElementById('flip-hint');
+  const willReveal = !card.classList.contains('flipped');
+
+  // 1. 建立關燈遮罩
+  const overlay = document.createElement('div');
+  overlay.id = 'dim-overlay';
+  document.body.appendChild(overlay);
+
+  // 觸發 transition（double rAF 確保初始 opacity:0 已渲染）
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    overlay.classList.add('lights-off');
+  }));
+
+  // 2. 關燈後：瞬間翻卡
+  setTimeout(() => {
+    card.style.transition = 'none';
+    card.classList.toggle('flipped');
+    card.offsetHeight; // force reflow
+    card.style.transition = '';
+
+    // 3. 開燈
+    overlay.classList.remove('lights-off');
+
+    setTimeout(() => {
+      overlay.remove();
+      _flipping = false;
+
+      // 4. 揭曉時：星星 + 光澤 + 卡片發光
+      if (willReveal) {
+        spawnSparkles();
+        addShimmerToCard();
+        scene.classList.add('glow');
+        setTimeout(() => scene.classList.remove('glow'), 600);
+      }
+
+      hint.textContent = card.classList.contains('flipped')
+        ? '✨ 再點一次翻回去'
+        : '👆 點擊卡片揭曉結果';
+    }, 420);
+  }, 400);
+}
+
+function spawnSparkles() {
+  const card = document.getElementById('flip-card');
+  const rect = card.getBoundingClientRect();
+  const cx = rect.left + rect.width  / 2;
+  const cy = rect.top  + rect.height / 2;
+
+  const chars = ['✨','⭐','💫','🌟','✦','★','·','✶'];
+  const count = 26;
+
+  for (let i = 0; i < count; i++) {
+    const el = document.createElement('div');
+    el.className = 'sparkle-p';
+
+    const angle = Math.random() * Math.PI * 2;
+    const dist  = 70 + Math.random() * 220;
+    const tx    = Math.cos(angle) * dist;
+    const ty    = Math.sin(angle) * dist;
+    const rot   = (Math.random() - 0.5) * 720;
+    const size  = 10 + Math.random() * 18;
+    const delay = (Math.random() * 180).toFixed(0);
+    const dur   = (700 + Math.random() * 350).toFixed(0);
+
+    el.textContent = chars[Math.floor(Math.random() * chars.length)];
+    el.style.cssText = `
+      left:${cx}px; top:${cy}px;
+      font-size:${size}px;
+      --tx:${tx}px; --ty:${ty}px;
+      --rot:${rot}deg;
+      --dur:${dur}ms;
+      --delay:${delay}ms;
+    `;
+
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), parseInt(dur) + parseInt(delay) + 100);
+  }
+}
+
+function addShimmerToCard() {
+  const cardBack = document.getElementById('card-back');
+  const shimmer  = document.createElement('div');
+  shimmer.className = 'card-shimmer';
+  cardBack.appendChild(shimmer);
+  setTimeout(() => shimmer.remove(), 900);
+}
+
+function showResult() {
+  showScreen('scr-result');
+}
+
+function resetSurvey() {
+  startSurvey();
+}
+
+// ==================== RANKINGS ====================
+
+async function showRankings() {
+  showScreen('scr-rankings');
+  await buildRankings();
+}
+
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.rank-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.rank-section').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+async function buildRankings() {
+  // Show loading state
+  ['tab-exercise','tab-food','tab-vocal','tab-social','tab-cling','tab-mbti'].forEach(id => {
+    document.getElementById(id).innerHTML = '<div style="text-align:center;padding:40px;color:var(--brown);font-size:14px;">載入中...</div>';
+  });
+
+  const submissions = await loadSubmissions();
+  const total = submissions.length;
+
+  const exMap = { none:1, pee:2, walk:3, run:4 };
+  const foodMap = { picky:1, normal:2, hungry:3, vacuum:4 };
+  const vocalMap = { silent:1, rarely:2, moderate:3, loud:4 };
+  const strangerMap = { hide:1, ignore:2, wag:3, jump:4 };
+  const sepMap = { ok:1, bark_lil:2, dramatic:3 };
+
+  // Aggregate by breed
+  const breedStats = {};
+  submissions.forEach(s => {
+    const id = s.breed;
+    if (!id || id === 'unknown') return;
+    if (!breedStats[id]) {
+      // Look up name/emoji from BREEDS data
+      let name = s.breedName, emoji = s.breedEmoji || '🐾';
+      if (!name) {
+        for (const sz of ['small','medium','large']) {
+          const found = BREEDS[sz].find(b => b.id === id);
+          if (found) { name = found.name; emoji = found.emoji; break; }
+        }
+      }
+      breedStats[id] = { exercise:0, food:0, vocal:0, social:0, cling:0, n:0, name, emoji };
+    }
+    const cur = breedStats[id];
+    const newN = cur.n + 1;
+    cur.exercise = ((cur.exercise * cur.n) + (exMap[s.exercise] || 2)) / newN;
+    cur.food     = ((cur.food     * cur.n) + (foodMap[s.food]   || 2)) / newN;
+    cur.vocal    = ((cur.vocal    * cur.n) + (vocalMap[s.vocal]  || 2)) / newN;
+    cur.social   = ((cur.social   * cur.n) + (strangerMap[s.stranger] || 2)) / newN;
+    cur.cling    = ((cur.cling    * cur.n) + (sepMap[s.separation]    || 2)) / newN;
+    cur.n = newN;
+  });
+
+  const entries = Object.entries(breedStats).filter(([,d]) => d.name && d.n >= 1);
+
+  buildRankTab('tab-exercise', entries, 'exercise', '🏃 最愛運動排行', `運動量指數（1-4 分）．共 ${total} 份問卷`, 4);
+  buildRankTab('tab-food',     entries, 'food',     '🍖 最能吃排行',   `食量指數（1-4 分）．共 ${total} 份問卷`, 4);
+  buildRankTab('tab-vocal',    entries, 'vocal',    '🔊 最話嘮排行',   `叫聲指數（1-4 分）．共 ${total} 份問卷`, 4);
+  buildRankTab('tab-social',   entries, 'social',   '👥 最社交排行',   `陌生人熱情指數（1-4 分）．共 ${total} 份問卷`, 4);
+  buildRankTab('tab-cling',    entries, 'cling',    '💔 分離焦慮排行', `分離焦慮指數（1-3 分）．共 ${total} 份問卷`, 3);
+  buildMBTIDist(submissions);
+}
+
+function buildRankTab(tabId, entries, field, title, subtitle, maxScore) {
+  const sorted = [...entries].sort((a,b) => b[1][field] - a[1][field]).slice(0, 10);
+
+  const emptyState = `
+    <div style="text-align:center;padding:32px 16px;">
+      <div style="font-size:48px;margin-bottom:12px;">🐾</div>
+      <div style="font-size:15px;font-weight:700;color:var(--dark);margin-bottom:6px;">還沒有資料</div>
+      <div style="font-size:13px;color:var(--brown);line-height:1.7;">邀請更多毛孩主人填問卷，<br>排行榜就會出現啦！</div>
+    </div>
+  `;
+
+  const medals = ['🥇','🥈','🥉'];
+
+  const items = sorted.map(([id, d], i) => {
+    const val = d[field];
+    const pct = Math.round(val / maxScore * 100);
+    const medal = i < 3 ? medals[i] : `${i+1}`;
+    const posClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    return `
+      <div class="rank-item">
+        <span class="rank-pos ${posClass}">${medal}</span>
+        <div class="rank-breed-info">
+          <div class="rank-breed-name">${d.emoji || '🐾'} ${d.name || id}</div>
+          <div class="rank-breed-sub">${d.n} 份</div>
+        </div>
+        <div class="rank-bar-wrap">
+          <div class="rank-bar" style="width:${pct}%">
+            <span class="rank-bar-val">${val.toFixed(1)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById(tabId).innerHTML = `
+    <div class="rank-card">
+      <div class="rank-card-title">${title}</div>
+      <div style="font-size:12px;color:var(--brown);margin-bottom:14px;">${subtitle}</div>
+      ${sorted.length > 0 ? items : emptyState}
+    </div>
+  `;
+}
+
+function buildMBTIDist(submissions) {
+  const counts = {};
+  submissions.forEach(s => { if(s.mbti) counts[s.mbti] = (counts[s.mbti]||0) + 1; });
+
+  const total = Object.values(counts).reduce((a,b)=>a+b, 0);
+
+  if (total === 0) {
+    document.getElementById('tab-mbti').innerHTML = `
+      <div class="rank-card">
+        <div class="rank-card-title">🧠 MBTI 類型分佈</div>
+        <div style="text-align:center;padding:32px 16px;">
+          <div style="font-size:48px;margin-bottom:12px;">🧠</div>
+          <div style="font-size:15px;font-weight:700;color:var(--dark);margin-bottom:6px;">還沒有資料</div>
+          <div style="font-size:13px;color:var(--brown);line-height:1.7;">邀請更多毛孩主人填問卷，<br>MBTI 分佈就會出現啦！</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  const maxCount = sorted[0][1];
+
+  const items = sorted.map(([type, cnt]) => {
+    const pct = Math.round(cnt / total * 100);
+    const barW = Math.round(cnt / maxCount * 100);
+    const t = MBTI_TYPES[type];
+    return `
+      <div class="mbti-dist-item">
+        <div class="mbti-dist-type">${type}</div>
+        <div style="flex:1">
+          <div style="font-size:11px;color:var(--dark);font-weight:600;margin-bottom:3px;">${t ? t.name : ''}</div>
+          <div class="mbti-dist-bar-wrap">
+            <div class="mbti-dist-bar" style="width:${barW}%"></div>
+          </div>
+        </div>
+        <div class="mbti-dist-pct">${pct}%</div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('tab-mbti').innerHTML = `
+    <div class="rank-card">
+      <div class="rank-card-title">🧠 MBTI 類型分佈</div>
+      <div style="font-size:12px;color:var(--brown);margin-bottom:14px;">台灣毛孩的人格類型比例（共 ${total} 份）</div>
+      <div class="mbti-grid">${items}</div>
+    </div>
+  `;
+}
+
+// ==================== INIT ====================
+// Animate rank bars after render
+document.addEventListener('DOMContentLoaded', () => {
+  // Delayed bar animation on ranking screen
+});
+</script>
+</body>
+</html>
