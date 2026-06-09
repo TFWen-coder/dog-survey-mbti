@@ -211,8 +211,27 @@
       background: linear-gradient(135deg, #FFF4E6, #FFE8CC);
       box-shadow: 0 3px 10px rgba(255,140,66,0.25);
     }
-    .breed-ico { font-size: 30px; display: block; margin-bottom: 6px; }
+    .breed-ico { display: flex; justify-content: center; align-items: center; height: 44px; margin-bottom: 6px; }
+    .breed-icon { width: 40px; height: 40px; display: block; }
+    .front-icon img { width: 80px; height: 80px; display: block; }
+    .back-breed-emoji img { width: 52px; height: 52px; display: block; margin: 0 auto; }
+    .breed-acc-icon { width: 32px; height: 32px; display: block; flex-shrink: 0; }
     .breed-name { font-size: 13px; font-weight: 600; color: var(--dark); line-height: 1.3; }
+    .custom-breed-row { grid-column: 1 / -1; margin-top: 2px; }
+    .custom-breed-toggle {
+      width: 100%; border: 2px dashed var(--light); border-radius: 14px;
+      background: transparent; padding: 11px; font-size: 13px; font-family: inherit;
+      color: var(--brown); cursor: pointer; transition: all .18s; text-align: center;
+    }
+    .custom-breed-toggle:hover, .custom-breed-toggle.active { border-color: var(--orange); color: var(--orange); background: #FFF4E6; }
+    .custom-breed-box { display: none; margin-top: 8px; }
+    .custom-breed-box.open { display: block; }
+    .custom-breed-input {
+      width: 100%; box-sizing: border-box;
+      border: 2px solid var(--orange); border-radius: 12px;
+      padding: 11px 14px; font-size: 15px; font-family: inherit;
+      color: var(--dark); background: white; outline: none;
+    }
 
     /* Nav */
     .nav-row { display: flex; gap: 12px; padding-top: 18px; }
@@ -771,69 +790,77 @@
 const BREEDS = {
   small: [
     { id:'mini_poodle',    name:'迷你貴賓犬',     emoji:'🐩' },
-    { id:'chihuahua',      name:'吉娃娃',         emoji:'🐕' },
-    { id:'maltese',        name:'馬爾濟斯',       emoji:'🐕' },
-    { id:'yorkshire',      name:'約克夏㹴',       emoji:'🐕' },
+    { id:'chihuahua',      name:'吉娃娃',         emoji:'🐶' },
+    { id:'maltese',        name:'馬爾濟斯',       emoji:'🤍' },
+    { id:'yorkshire',      name:'約克夏㹴',       emoji:'🎀' },
     { id:'pomeranian',     name:'博美犬',         emoji:'🦊' },
-    { id:'shih_tzu',       name:'西施犬',         emoji:'🐕' },
-    { id:'bichon',         name:'比熊犬',         emoji:'🐕' },
+    { id:'shih_tzu',       name:'西施犬',         emoji:'🌸' },
+    { id:'bichon',         name:'比熊犬',         emoji:'🍭' },
     { id:'mini_dachshund', name:'迷你臘腸犬',     emoji:'🌭' },
     { id:'papillon',       name:'蝴蝶犬',         emoji:'🦋' },
-    { id:'havanese',       name:'哈瓦那犬',       emoji:'🐕' },
-    { id:'italian_grey',   name:'義大利靈緹',     emoji:'🐕' },
-    { id:'jack_russell',   name:'傑克羅素㹴',     emoji:'🐕' },
-    { id:'japanese_chin',  name:'日本狆',         emoji:'🐕' },
-    { id:'mini_pinscher',  name:'迷你杜賓',       emoji:'🐕' },
-    { id:'cavalier_ks',    name:'查理士王小獵犬', emoji:'🐕' },
+    { id:'havanese',       name:'哈瓦那犬',       emoji:'🎵' },
+    { id:'italian_grey',   name:'義大利靈緹',     emoji:'💨' },
+    { id:'jack_russell',   name:'傑克羅素㹴',     emoji:'⚡' },
+    { id:'japanese_chin',  name:'日本狆',         emoji:'🏯' },
+    { id:'mini_pinscher',  name:'迷你杜賓',       emoji:'🛡️' },
+    { id:'cavalier_ks',    name:'查理士王小獵犬', emoji:'👑' },
     { id:'lion_dog',       name:'獅子狗',         emoji:'🦁' },
-    { id:'scottish_terr',  name:'蘇格蘭㹴',       emoji:'🐕' },
+    { id:'scottish_terr',  name:'蘇格蘭㹴',       emoji:'🪨' },
     { id:'mixed_small',    name:'米克斯（小型）', emoji:'🐾' },
     { id:'other_small',    name:'其他小型犬',     emoji:'🐾' },
   ],
   medium: [
     { id:'shiba',          name:'柴犬',       emoji:'🦊' },
-    { id:'french_bull',    name:'法國鬥牛犬', emoji:'🐾' },
-    { id:'beagle',         name:'米格魯',     emoji:'🐕' },
-    { id:'corgi',          name:'柯基犬',     emoji:'🐕' },
-    { id:'taiwan_dog',     name:'台灣土狗',   emoji:'🐕' },
-    { id:'mini_schnauzer', name:'迷你雪納瑞', emoji:'🐕' },
-    { id:'pug',            name:'巴哥犬',     emoji:'🐷' },
+    { id:'french_bull',    name:'法國鬥牛犬', emoji:'🦇' },
+    { id:'beagle',         name:'米格魯',     emoji:'🔍' },
+    { id:'corgi',          name:'柯基犬',     emoji:'🍑' },
+    { id:'taiwan_dog',     name:'台灣土狗',   emoji:'🇹🇼' },
+    { id:'mini_schnauzer', name:'迷你雪納瑞', emoji:'🥸' },
+    { id:'pug',            name:'巴哥犬',     emoji:'🐶' },
     { id:'border_collie',  name:'邊境牧羊犬', emoji:'🐑' },
-    { id:'aussie',         name:'澳洲牧羊犬', emoji:'🐕' },
-    { id:'cocker',         name:'可卡獵犬',   emoji:'🐕' },
-    { id:'boston',         name:'波士頓㹴',   emoji:'🐕' },
-    { id:'westie',         name:'西高地白㹴', emoji:'🐕' },
-    { id:'wire_fox_terr',  name:'剛毛獵狐㹴', emoji:'🐕' },
-    { id:'whippet',        name:'惠比特',     emoji:'🐕' },
-    { id:'doberman_med',   name:'杜賓犬',     emoji:'🐕' },
-    { id:'shar_pei',       name:'沙皮狗',     emoji:'🐕' },
-    { id:'kishu',          name:'紀州犬',     emoji:'🐕' },
+    { id:'aussie',         name:'澳洲牧羊犬', emoji:'🌈' },
+    { id:'cocker',         name:'可卡獵犬',   emoji:'🎣' },
+    { id:'boston',         name:'波士頓㹴',   emoji:'🎩' },
+    { id:'westie',         name:'西高地白㹴', emoji:'🏳️' },
+    { id:'wire_fox_terr',  name:'剛毛獵狐㹴', emoji:'🦊' },
+    { id:'whippet',        name:'惠比特',     emoji:'🏃' },
+    { id:'doberman_med',   name:'杜賓犬',     emoji:'🗡️' },
+    { id:'shar_pei',       name:'沙皮狗',     emoji:'🫧' },
+    { id:'kishu',          name:'紀州犬',     emoji:'⛩️' },
     { id:'mixed_medium',   name:'米克斯（中型）', emoji:'🐾' },
     { id:'other_medium',   name:'其他中型犬', emoji:'🐾' },
   ],
   large: [
-    { id:'labrador',       name:'拉布拉多犬', emoji:'🐕' },
+    { id:'labrador',       name:'拉布拉多犬', emoji:'🦮' },
     { id:'golden',         name:'黃金獵犬',   emoji:'⭐' },
-    { id:'german_shep',    name:'德國牧羊犬', emoji:'🐕' },
+    { id:'german_shep',    name:'德國牧羊犬', emoji:'👮' },
     { id:'husky',          name:'哈士奇',     emoji:'🐺' },
     { id:'samoyed',        name:'薩摩耶犬',   emoji:'☁️' },
-    { id:'alaskan',        name:'阿拉斯加',   emoji:'🐺' },
+    { id:'alaskan',        name:'阿拉斯加',   emoji:'❄️' },
     { id:'std_poodle',     name:'標準貴賓犬', emoji:'🐩' },
     { id:'border_collie_l',name:'邊境牧羊犬', emoji:'🐑' },
-    { id:'doberman',       name:'杜賓犬',     emoji:'🐕' },
-    { id:'great_pyr',      name:'大白熊犬',   emoji:'🐻' },
+    { id:'doberman',       name:'杜賓犬',     emoji:'🛡️' },
+    { id:'great_pyr',      name:'大白熊犬',   emoji:'🐻‍❄️' },
     { id:'boxer',          name:'拳師犬',     emoji:'🥊' },
     { id:'mastiff',        name:'獒犬',       emoji:'🦁' },
-    { id:'std_schnauzer',  name:'標準雪納瑞', emoji:'🐕' },
-    { id:'akita',          name:'秋田犬',     emoji:'🐕' },
-    { id:'greyhound',      name:'靈緹',       emoji:'🐕' },
-    { id:'afghan_hound',   name:'阿富汗獵犬', emoji:'🐕' },
+    { id:'std_schnauzer',  name:'標準雪納瑞', emoji:'🥸' },
+    { id:'akita',          name:'秋田犬',     emoji:'🗻' },
+    { id:'greyhound',      name:'靈緹',       emoji:'🏎️' },
+    { id:'afghan_hound',   name:'阿富汗獵犬', emoji:'👸' },
     { id:'bernese',        name:'伯恩山犬',   emoji:'🏔️' },
-    { id:'rottweiler',     name:'羅威那犬',   emoji:'🐕' },
-    { id:'saint_bernard',  name:'聖伯納犬',   emoji:'🐕' },
+    { id:'rottweiler',     name:'羅威那犬',   emoji:'💪' },
+    { id:'saint_bernard',  name:'聖伯納犬',   emoji:'⛷️' },
     { id:'other_large',    name:'其他大型犬', emoji:'🐾' },
   ]
 };
+
+// Convert emoji to Twemoji SVG icon URL
+function emojiUrl(emoji) {
+  const cps = [...emoji]
+    .map(c => c.codePointAt(0).toString(16))
+    .filter(cp => cp !== 'fe0f');
+  return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/${cps.join('-')}.svg`;
+}
 
 const QUESTIONS = [
   {
@@ -1107,6 +1134,10 @@ function renderQuestion(back = false) {
 
   // attach events
   if (q.type === 'breed') {
+    const customToggle = wrap.querySelector('#custom-toggle');
+    const customBox    = wrap.querySelector('#custom-box');
+    const customInput  = wrap.querySelector('#custom-input');
+
     wrap.querySelectorAll('.breed-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         wrap.querySelectorAll('.breed-btn').forEach(b => b.classList.remove('sel'));
@@ -1114,7 +1145,39 @@ function renderQuestion(back = false) {
         state.answers[q.id] = btn.dataset.v;
         state.breedData = JSON.parse(btn.dataset.info);
         document.getElementById('btn-next').disabled = false;
+        // 關閉自填
+        customBox.classList.remove('open');
+        customToggle.classList.remove('active');
+        customInput.value = '';
       });
+    });
+
+    customToggle.addEventListener('click', () => {
+      const opening = !customBox.classList.contains('open');
+      customBox.classList.toggle('open');
+      customToggle.classList.toggle('active');
+      if (opening) {
+        wrap.querySelectorAll('.breed-btn').forEach(b => b.classList.remove('sel'));
+        customInput.focus();
+        // 清除舊選擇，等使用者輸入
+        state.answers[q.id] = null;
+        state.breedData = null;
+        document.getElementById('btn-next').disabled = true;
+      }
+    });
+
+    customInput.addEventListener('input', () => {
+      const val = customInput.value.trim();
+      if (val) {
+        const normId = 'custom_' + val.toLowerCase().replace(/\s+/g, '_');
+        state.answers[q.id] = normId;
+        state.breedData = { id: normId, name: val, emoji: '🐕' };
+        document.getElementById('btn-next').disabled = false;
+      } else {
+        state.answers[q.id] = null;
+        state.breedData = null;
+        document.getElementById('btn-next').disabled = true;
+      }
     });
   } else {
     wrap.querySelectorAll('.opt').forEach(btn => {
@@ -1161,16 +1224,30 @@ function buildBreedHTML(q) {
 
   const btns = breeds.map(b => `
     <button class="breed-btn${selV === b.id ? ' sel' : ''}" data-v="${b.id}" data-info='${JSON.stringify(b)}'>
-      <span class="breed-ico">${b.emoji}</span>
+      <span class="breed-ico"><img src="${emojiUrl(b.emoji)}" class="breed-icon" alt="${b.name}"></span>
       <span class="breed-name">${b.name}</span>
     </button>
   `).join('');
+
+  const customActive = selV && selV.startsWith('custom_');
+  const customVal = customActive ? state.breedData?.name || '' : '';
 
   return `
     <div class="q-emoji">${q.emoji}</div>
     <div class="q-title">${q.title}</div>
     <div class="q-sub">${q.sub}</div>
-    <div class="breed-grid">${btns}</div>
+    <div class="breed-grid">
+      ${btns}
+      <div class="custom-breed-row">
+        <button class="custom-breed-toggle${customActive ? ' active' : ''}" id="custom-toggle">
+          ✏️ 找不到品種？點此自填
+        </button>
+        <div class="custom-breed-box${customActive ? ' open' : ''}" id="custom-box">
+          <input type="text" id="custom-input" class="custom-breed-input"
+                 placeholder="請輸入品種名稱（最多 20 字）" maxlength="20" value="${customVal}">
+        </div>
+      </div>
+    </div>
   `;
 }
 
@@ -1268,8 +1345,13 @@ function buildResult() {
   const type = MBTI_TYPES[mbti] || MBTI_TYPES['INFP'];
   const breed = state.breedData;
 
-  // Front icon = breed emoji
-  document.getElementById('front-icon').textContent = breed ? breed.emoji : '🐾';
+  // Front icon = breed Twemoji icon
+  const frontEl = document.getElementById('front-icon');
+  if (breed) {
+    frontEl.innerHTML = `<img src="${emojiUrl(breed.emoji)}" alt="${breed.name}">`;
+  } else {
+    frontEl.innerHTML = `<img src="${emojiUrl('🐾')}" alt="dog">`;
+  }
   document.getElementById('res-title').textContent = breed ? `${breed.name} 的個性是...` : '你的毛孩是...';
 
   // Apply type-specific theme to card back
@@ -1288,7 +1370,7 @@ function buildResult() {
   const tagBord  = type.light ? 'rgba(255,255,255,0.35)' : '#FF8C42';
 
   cardBack.innerHTML = `
-    <div class="back-breed-emoji">${breed ? breed.emoji : '🐾'}</div>
+    <div class="back-breed-emoji"><img src="${emojiUrl(breed ? breed.emoji : '🐾')}" alt=""></div>
     <div class="back-mbti" style="color:${ac}">${mbti}</div>
     <div class="back-name" style="color:${tc}">${type.emoji} ${type.name}</div>
     <div class="back-tagline" style="color:${tc2}">「${type.tag}」</div>
@@ -1562,13 +1644,14 @@ async function buildRankings() {
     cur.n = newN;
   });
 
-  const entries = Object.entries(breedStats).filter(([,d]) => d.name && d.n >= 1);
+  const entries = Object.entries(breedStats).filter(([,d]) => d.name && d.n >= 5);
+  const note = `共 ${total} 份問卷．品種需滿 5 份才列入`;
 
-  buildRankTab('tab-exercise', entries, 'exercise', '🏃 最愛運動排行', `運動量指數（1-4 分）．共 ${total} 份問卷`, 4);
-  buildRankTab('tab-food',     entries, 'food',     '🍖 最能吃排行',   `食量指數（1-4 分）．共 ${total} 份問卷`, 4);
-  buildRankTab('tab-vocal',    entries, 'vocal',    '🔊 最話嘮排行',   `叫聲指數（1-4 分）．共 ${total} 份問卷`, 4);
-  buildRankTab('tab-social',   entries, 'social',   '👥 最社交排行',   `陌生人熱情指數（1-4 分）．共 ${total} 份問卷`, 4);
-  buildRankTab('tab-cling',    entries, 'cling',    '💔 分離焦慮排行', `分離焦慮指數（1-3 分）．共 ${total} 份問卷`, 3);
+  buildRankTab('tab-exercise', entries, 'exercise', '🏃 最愛運動排行', `運動量指數（1-4 分）．${note}`, 4);
+  buildRankTab('tab-food',     entries, 'food',     '🍖 最能吃排行',   `食量指數（1-4 分）．${note}`, 4);
+  buildRankTab('tab-vocal',    entries, 'vocal',    '🔊 最話嘮排行',   `叫聲指數（1-4 分）．${note}`, 4);
+  buildRankTab('tab-social',   entries, 'social',   '👥 最社交排行',   `陌生人熱情指數（1-4 分）．${note}`, 4);
+  buildRankTab('tab-cling',    entries, 'cling',    '💔 分離焦慮排行', `分離焦慮指數（1-3 分）．${note}`, 3);
   buildBreedList(submissions);
 }
 
@@ -1643,7 +1726,7 @@ function buildBreedList(submissions) {
   });
 
   const breeds = Object.entries(breedMap)
-    .filter(([,d]) => d.name)
+    .filter(([,d]) => d.name && d.subs.length >= 5)
     .sort((a,b) => b[1].subs.length - a[1].subs.length);
 
   if (breeds.length === 0) {
@@ -1653,7 +1736,7 @@ function buildBreedList(submissions) {
         <div style="text-align:center;padding:32px 16px;">
           <div style="font-size:48px;margin-bottom:12px;">🐾</div>
           <div style="font-size:15px;font-weight:700;color:var(--dark);margin-bottom:6px;">還沒有資料</div>
-          <div style="font-size:13px;color:var(--brown);line-height:1.7;">邀請毛孩主人填問卷，<br>品種個性就會出現啦！</div>
+          <div style="font-size:13px;color:var(--brown);line-height:1.7;">每個品種需累積 5 份以上問卷<br>才會出現在這裡喔！</div>
         </div>
       </div>`;
     return;
@@ -1696,7 +1779,7 @@ function buildBreedList(submissions) {
     return `
       <div class="breed-acc-item" id="acc-${id}">
         <div class="breed-acc-header" onclick="toggleBreedAcc('${id}')">
-          <span class="breed-acc-emoji">${d.emoji}</span>
+          <img src="${emojiUrl(d.emoji)}" class="breed-acc-icon" alt="${d.name}">
           <span class="breed-acc-name">${d.name}</span>
           <span class="breed-acc-count">${n} 份</span>
           <span class="breed-acc-arrow">▼</span>
